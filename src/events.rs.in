@@ -3,730 +3,1408 @@ pub struct Value { pub json: serde_json::Value }
 
 #[derive(Debug, Deserialize)]
 pub enum Event {
-  CommitComment {
-      action: String,
-      comment: Comment,
-      repository: Repository,
-      sender: User,
-  },
-  Create {
-      description: String,
-      master_branch: String,
-      pusher_type: String,
-      #[serde(rename="ref")]
-      _ref: String,
-      #[serde(rename="ref_type")]
-      ref_type: String,
-      repository: Repository,
-      sender: User,
-  },
-  Delete {
-      pusher_type: String,
-      #[serde(rename="ref")]
-      _ref: String,
-      ref_type: String,
-      repository: Repository,
-      sender: User,
-  },
-  Deployment {
-      deployment: Deployment,
-      repository: Repository,
-      sender: User,
-  },
-  DeploymentStatus {
-      deployment: Deployment,
-      deployment_status: DeploymentStatus,
-      repository: Repository,
-      sender: User,
-  },
-  Fork {
-      forkee: Repository,
-      repository: Repository,
-      sender: User,
-  },
-  Gollum {
-      pages: Vec<Pages>,
-      repository: Repository,
-      sender: User,
-  },
-  IssueComment {
-      action: String,
-      comment: IssueCommentComment,
-      issue: Issue,
-      repository: Repository,
-      sender: User,
-  },
-  Issues {
-      action: String,
-      issue: Issue,
-      repository: Repository,
-      sender: User,
-  },
-  Member {
-      action: String,
-      member: User,
-      repository: Repository,
-      sender: User,
-  },
-  Membership {
-      action: String,
-      member: User,
-      organization: Organization,
-      scope: String,
-      sender: User,
-      team: Team,
-  },
-  PageBuild {
-      build: PageBuild,
-      id: u64,
-      repository: Repository,
-      sender: User,
-  },
-  Ping {
-      hook: Hook,
-      hook_id: u64,
-      repository: Repository,
-      sender: User,
-      zen: String,
-  },
-  Public {
-      repository: Repository,
-      sender: User,
-  },
-  PullRequest {
-      action: String,
-      number: u64,
-      pull_request: PullRequestDetails,
-      repository: Repository,
-      sender: User,
-  },
-  PullRequestReviewComment {
-      action: String,
-      comment: PullRequestReviewComment,
-      pull_request: PullRequest,
-      repository: Repository,
-      sender: User,
-  },
-  Push {
-      after: String,
-      base_ref: Option<String>,
-      before: String,
-      commits: Vec<CommitStats>,
-      compare: String,
-      created: bool,
-      deleted: bool,
-      forced: bool,
-      head_commit: CommitStats,
-      pusher: UserRef, // note there aren't may fields here
-      #[serde(rename="ref")]
-      _ref: String,
-      repository: PushRepository,
-      sender: User,
-  },
-  Release {
-      action: String,
-      release: Release,
-      repository: Repository,
-      sender: User,
-  },
-  Repository {
-      action: String,
-      organization: Organization,
-      repository: Repository,
-      sender: User,
-  },
-  Status {
-      //branches: Vec<BranchRef>,
-      commit: CommitRef,
-      context: String,
-      created_at: String,
-      description: Option<String>,
-      id: u64,
-      name: String,
-      repository: Repository,
-      sender: User,
-      sha: String,
-      state: String,
-      target_url: Option<String>,
-      updated_at: String,
-  },
-  TeamAdd {
-      organization: Organization,
-      repository: Repository,
-      sender: User,
-      team: Team,
-  },
-  Watch {
-      action: String,
-      repository: Repository,
-      sender: User,
-  },
+    CheckRun {
+        action: String,
+        check_run: CheckRun1,
+        repository: Repo,
+        organization: Organization,
+        sender: User,
+        installation: Installation,
+    },
+    CheckSuite {
+        action: String,
+        check_suite: CheckSuite2,
+        repository: Repo,
+        organization: Organization,
+        sender: User,
+        installation: Installation,
+    },
+    CommitComment {
+        action: String,
+        comment: Comment,
+        repository: Repo,
+        sender: User,
+    },
+    ContentReference {
+        action: String,
+        content_reference: ContentReference1,
+        repository: Repo,
+        sender: User,
+        installation: Installation1,
+    },
+    Create {
+        #[serde(rename = "ref")]
+        _ref: String,
+        ref_type: String,
+        master_branch: String,
+        description: String,
+        pusher_type: String,
+        repository: Repo,
+        sender: User,
+    },
+    Delete {
+        #[serde(rename = "ref")]
+        _ref: String,
+        ref_type: String,
+        pusher_type: String,
+        repository: Repo,
+        sender: User,
+    },
+    Deployment {
+        deployment: Deployment1,
+        repository: Repo,
+        sender: User,
+    },
+    DeploymentStatus {
+        deployment_status: DeploymentStatus1,
+        deployment: Deployment1,
+        repository: Repo,
+        sender: User,
+    },
+    Fork {
+        forkee: Forkee,
+        repository: Repo,
+        sender: User,
+    },
+    GithubAppAuthorization {
+        action: String,
+        sender: User,
+    },
+    Gollum {
+        pages: Vec<Pages>,
+        repository: Repo,
+        sender: User,
+    },
+    Installation {
+        action: String,
+        installation: Installation3,
+        repositories: Vec<Repositories>,
+        sender: User,
+    },
+    InstallationRepositories {
+        action: String,
+        installation: Installation3,
+        repository_selection: String,
+        repositories_added: Vec<Repositories>,
+        repositories_removed: Vec<Repositories>,
+        sender: User,
+    },
+    IssueComment {
+        action: String,
+        issue: Issue,
+        comment: Comment1,
+        repository: Repo,
+        sender: User,
+    },
+    Issues {
+        action: String,
+        issue: Issue,
+        changes: (),
+        repository: Repo,
+        sender: User,
+    },
+    Label {
+        action: String,
+        label: Labels,
+        repository: Repo,
+        sender: User,
+    },
+    MarketplacePurchase {
+        action: String,
+        effective_date: String,
+        sender: Sender,
+        marketplace_purchase: MarketplacePurchase1,
+    },
+    Member {
+        action: String,
+        member: User,
+        changes: Changes,
+        repository: Repo,
+        sender: User,
+    },
+    Membership {
+        action: String,
+        scope: String,
+        member: User,
+        sender: User,
+        team: Team,
+        organization: Organization,
+    },
+    Milestone {
+        action: String,
+        milestone: Milestone1,
+        repository: Repo,
+        sender: User,
+    },
+    OrgBlock {
+        action: String,
+        blocked_user: User,
+        organization: Organization,
+        sender: User,
+    },
+    Organization {
+        action: String,
+        membership: Membership1,
+        organization: Organization,
+        sender: User,
+    },
+    PageBuild {
+        id: i64,
+        build: Build,
+        repository: Repo,
+        sender: User,
+    },
+    Project {
+        action: String,
+        project: Project1,
+        repository: Repo,
+        sender: User,
+    },
+    ProjectCard {
+        action: String,
+        project_card: ProjectCard1,
+        repository: Repo,
+        sender: User,
+    },
+    ProjectColumn {
+        action: String,
+        project_column: ProjectColumn1,
+        repository: Repo,
+        sender: User,
+    },
+    Public {
+        repository: Repo,
+        sender: User,
+    },
+    PullRequest {
+        action: String,
+        number: i64,
+        pull_request: PullRequests,
+        label: Labels,
+        repository: Repo,
+        organization: Organization,
+        sender: User,
+    },
+    PullRequestReview {
+        action: String,
+        review: Review,
+        pull_request: PullRequest1,
+        repository: Repo,
+        sender: User,
+    },
+    PullRequestReviewComment {
+        action: String,
+        comment: Comment2,
+        pull_request: PullRequest1,
+        repository: Repo,
+        sender: User,
+    },
+    Push {
+        #[serde(rename = "ref")]
+        _ref: String,
+        before: String,
+        after: String,
+        created: bool,
+        deleted: bool,
+        forced: bool,
+        base_ref: String,
+        compare: String,
+        commits: Vec<Commits>,
+        head_commit: String,
+        repository: Repository,
+        pusher: Author,
+        sender: User,
+    },
+    Release {
+        action: String,
+        release: Release1,
+        repository: Repo,
+        sender: User,
+    },
+    Repository {
+        action: String,
+        repository: Repo,
+        sender: User,
+    },
+    RepositoryImport {
+        status: String,
+        repository: Repo,
+        organization: Organization,
+        sender: User,
+    },
+    RepositoryVulnerabilityAlert {
+        action: String,
+        alert: Alert,
+    },
+    SecurityAdvisory {
+        action: String,
+        security_advisory: SecurityAdvisory1,
+    },
+    Status {
+        id: i64,
+        sha: String,
+        name: String,
+        target_url: String,
+        context: String,
+        description: String,
+        state: String,
+        commit: Commit,
+        branches: Vec<Branches>,
+        created_at: String,
+        updated_at: String,
+        repository: Repo,
+        sender: User,
+    },
+    Team {
+        action: String,
+        team: Team,
+        repository: Repository2,
+        organization: Organization,
+        sender: User,
+    },
+    TeamAdd {
+        team: Team,
+        repository: Repo,
+        organization: Organization,
+        sender: User,
+    },
+    Watch {
+        action: String,
+        repository: Repo,
+        sender: User,
+    },
 }
 
-#[derive(Default, Debug, Deserialize)]
-pub struct Commit {
-  author: GitUser,
-  committer: GitUser,
-  message: String,
-  tree: GitRef,
+#[derive(Debug, Deserialize)]
+pub struct Account {
+  #[serde(rename = "type")]
+  _type: String,
+  id: i64,
+  login: String,
+  organization_billing_email: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Alert {
+  id: i64,
+  affected_range: String,
+  affected_package_name: String,
+  external_reference: String,
+  external_identifier: String,
+  fixed_in: String,
+  dismisser: User,
+  dismiss_reason: String,
+  dismissed_at: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct App {
+  id: i64,
+  node_id: String,
+  owner: User,
+  name: String,
+  description: String,
+  external_url: String,
+  html_url: String,
+  created_at: String,
+  updated_at: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Author {
+  name: String,
+  email: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Author1 {
+  name: String,
+  email: String,
+  username: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Author2 {
+  name: String,
+  email: String,
+  date: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Branches {
+  name: String,
+  commit: Tree,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Build {
   url: String,
-  comment_count: u64
+  status: String,
+  error: Error,
+  pusher: User,
+  commit: String,
+  duration: i64,
+  created_at: String,
+  updated_at: String,
 }
 
-#[derive(Default, Debug, Deserialize)]
-pub struct BranchRef {
-    pub commit: GitRef,
-    pub name: String,
+#[derive(Debug, Deserialize)]
+pub struct Changes {
+  permission: Permission,
 }
 
-#[derive(Default, Debug, Deserialize)]
-pub struct PageBuild {
-    pub commit: String,
-    pub created_at: String,
-    pub duration: u64,
-    pub error: Error,
-    pub pusher: User,
-    pub status: String,
-    pub updated_at: String,
-    pub url: String,
+#[derive(Debug, Deserialize)]
+pub struct CheckRun1 {
+  id: i64,
+  head_sha: String,
+  external_id: String,
+  url: String,
+  html_url: String,
+  status: String,
+  conclusion: String,
+  started_at: String,
+  completed_at: String,
+  output: Output,
+  name: String,
+  check_suite: CheckSuite,
+  app: App,
+  pull_requests: Vec<PullRequests>,
 }
 
-#[derive(Default, Debug, Deserialize)]
+#[derive(Debug, Deserialize)]
+pub struct CheckSuite {
+  id: i64,
+  head_branch: String,
+  head_sha: String,
+  status: String,
+  conclusion: String,
+  url: String,
+  before: String,
+  after: String,
+  pull_requests: Vec<PullRequests>,
+  app: App,
+  created_at: String,
+  updated_at: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CheckSuite2 {
+  id: i64,
+  head_branch: String,
+  head_sha: String,
+  status: String,
+  conclusion: String,
+  url: String,
+  before: String,
+  after: String,
+  pull_requests: Vec<PullRequests>,
+  app: App,
+  created_at: String,
+  updated_at: String,
+  latest_check_runs_count: i64,
+  check_runs_url: String,
+  head_commit: HeadCommit,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct Comment {
-    pub body: String,
-    pub commit_id: String,
-    pub created_at: String,
-    pub html_url: String,
-    pub id: u64,
-    pub line: Option<String>,
-    pub path: Option<String>,
-    pub position: Option<String>,
-    pub updated_at: String,
-    pub url: String,
-    pub user: User,
+  url: String,
+  html_url: String,
+  id: i64,
+  node_id: String,
+  user: User,
+  position: String,
+  line: String,
+  path: String,
+  commit_id: String,
+  created_at: String,
+  updated_at: String,
+  author_association: String,
+  body: String,
 }
 
-#[derive(Default, Debug, Deserialize)]
-pub struct CommitRef {
-    pub author: User,
-    pub comments_url: String,
-    pub commit: Commit,
-    pub committer: User,
-    pub html_url: String,
-    pub parents: Vec<GitRef>,
-    pub sha: String,
-    pub url: String,
+#[derive(Debug, Deserialize)]
+pub struct Comment1 {
+  url: String,
+  html_url: String,
+  issue_url: String,
+  id: i64,
+  node_id: String,
+  user: User,
+  created_at: String,
+  updated_at: String,
+  author_association: String,
+  body: String,
 }
 
-#[derive(Default, Debug, Deserialize)]
-pub struct Deployment {
-    pub created_at: String,
-    pub creator: User,
-    pub description: Option<String>,
-    pub environment: String,
-    pub id: u64,
-    pub payload: Value,
-    #[serde(rename="ref")]
-    pub _ref: String,
-    pub repository_url: String,
-    pub sha: String,
-    pub statuses_url: String,
-    pub task: String,
-    pub updated_at: String,
-    pub url: String,
+#[derive(Debug, Deserialize)]
+pub struct Comment2 {
+  url: String,
+  pull_request_review_id: i64,
+  id: i64,
+  node_id: String,
+  diff_hunk: String,
+  path: String,
+  position: i64,
+  original_position: i64,
+  commit_id: String,
+  original_commit_id: String,
+  user: User,
+  body: String,
+  created_at: String,
+  updated_at: String,
+  html_url: String,
+  pull_request_url: String,
+  author_association: String,
+  _links: Links2,
 }
 
-#[derive(Default, Debug, Deserialize)]
-pub struct DeploymentStatus {
-    pub created_at: String,
-    pub creator: User,
-    pub deployment_url: String,
-    pub description: Option<String>,
-    pub id: u64,
-    pub repository_url: String,
-    pub state: String,
-    pub target_url: Option<String>,
-    pub updated_at: String,
-    pub url: String,
+#[derive(Debug, Deserialize)]
+pub struct Commit {
+  sha: String,
+  node_id: String,
+  commit: Commit1,
+  url: String,
+  html_url: String,
+  comments_url: String,
+  author: User,
+  committer: User,
 }
 
-#[derive(Default, Debug, Deserialize)]
-pub struct CommitStats {
-    pub added: Vec<String>,
-    pub author: GitUser,
-    pub committer: GitUser,
-    pub distinct: bool,
-    pub id: String,
-    pub message: String,
-    pub modified: Vec<String>,
-    pub removed: Vec<String>,
-    pub timestamp: String,
-    pub tree_id: String,
-    pub url: String,
+#[derive(Debug, Deserialize)]
+pub struct Commit1 {
+  author: Author2,
+  committer: Author2,
+  message: String,
+  tree: Tree,
+  url: String,
+  comment_count: i64,
+  verification: Verification,
 }
 
-#[derive(Default, Debug, Deserialize)]
-pub struct Hook {
-    pub active: bool,
-    pub config: Config,
-    pub created_at: String,
-    pub events: Vec<String>,
-    pub id: u64,
-    pub last_response: LastResponse,
-    pub name: String,
-    pub ping_url: String,
-    pub test_url: String,
-    pub _type: String,
-    pub updated_at: String,
-    pub url: String,
+#[derive(Debug, Deserialize)]
+pub struct Commits {
+  id: String,
+  tree_id: String,
+  distinct: bool,
+  message: String,
+  timestamp: String,
+  url: String,
+  author: Author1,
+  committer: Author1,
+  added: Vec<String>,
+  removed: Vec<String>,
+  modified: Vec<String>,
 }
 
-#[derive(Default, Debug, Deserialize)]
-pub struct Issue {
-    pub assignee: Option<String>,
-    pub body: Option<String>,
-    pub closed_at: Option<String>,
-    pub comments: u64,
-    pub comments_url: String,
-    pub created_at: String,
-    pub events_url: String,
-    pub html_url: String,
-    pub id: u64,
-    pub labels: Vec<Label>,
-    pub labels_url: String,
-    pub locked: bool,
-    pub milestone: Option<String>,
-    pub number: u64,
-    pub state: String,
-    pub title: String,
-    pub updated_at: String,
-    pub url: String,
-    pub user: User,
+#[derive(Debug, Deserialize)]
+pub struct ContentReference1 {
+  id: i64,
+  node_id: String,
+  reference: String,
 }
 
-#[derive(Default, Debug, Deserialize)]
-pub struct IssueCommentComment {
-    pub body: String,
-    pub created_at: String,
-    pub html_url: String,
-    pub id: u64,
-    pub issue_url: String,
-    pub updated_at: String,
-    pub url: String,
-    pub user: User,
+#[derive(Debug, Deserialize)]
+pub struct Deployment1 {
+  url: String,
+  id: i64,
+  node_id: String,
+  sha: String,
+  #[serde(rename = "ref")]
+  _ref: String,
+  task: String,
+  payload: (),
+  environment: String,
+  description: String,
+  creator: User,
+  created_at: String,
+  updated_at: String,
+  statuses_url: String,
+  repository_url: String,
 }
 
-#[derive(Default, Debug, Deserialize)]
-pub struct Organization {
-    pub avatar_url: String,
-    pub events_url: String,
-    pub id: u64,
-    pub login: String,
-    pub members_url: String,
-    pub public_members_url: String,
-    pub repos_url: String,
-    pub url: String,
-    pub description: Option<String>
+#[derive(Debug, Deserialize)]
+pub struct DeploymentStatus1 {
+  url: String,
+  id: i64,
+  node_id: String,
+  state: String,
+  creator: User,
+  description: String,
+  target_url: String,
+  created_at: String,
+  updated_at: String,
+  deployment_url: String,
+  repository_url: String,
 }
 
-#[derive(Default, Debug, Deserialize)]
-pub struct Pages {
-    pub action: String,
-    pub html_url: String,
-    pub page_name: String,
-    pub sha: String,
-    pub summary: Option<String>,
-    pub title: String,
-}
-
-
-#[derive(Default, Debug, Deserialize)]
-pub struct PullRequestDetails {
-    pub _links: PullRequestLinks,
-    pub assignee: Option<String>,
-    pub base: PullSource,
-    pub body: Option<String>,
-    pub closed_at: Option<String>,
-    pub comments_url: String,
-    pub commits_url: String,
-    pub created_at: String,
-    pub diff_url: String,
-    pub head: PullSource,
-    pub html_url: String,
-    pub id: u64,
-    pub issue_url: String,
-    pub locked: bool,
-    pub merge_commit_sha: String,
-    pub merged_at: Option<String>,
-    pub milestone: Option<String>,
-    pub number: u64,
-    pub patch_url: String,
-    pub review_comment_url: String,
-    pub review_comments_url: String,
-    pub state: String,
-    pub statuses_url: String,
-    pub title: String,
-    pub updated_at: String,
-    pub url: String,
-    pub user: User,
-    pub merged: bool,
-    //mergeable": null,
-    mergeable_state: String,
-    //"merged_by": null,
-    pub comments: u64,
-    pub review_comments: u64,
-    pub commits: u64,
-    pub additions: u64,
-    pub deletions: u64,
-    pub changed_files: u64
-}
-
-#[derive(Default, Debug, Deserialize)]
-pub struct PullRequest {
-    pub _links: PullRequestLinks,
-    pub assignee: Option<String>,
-    pub base: PullSource,
-    pub body: Option<String>,
-    pub closed_at: Option<String>,
-    pub comments_url: String,
-    pub commits_url: String,
-    pub created_at: String,
-    pub diff_url: String,
-    pub head: PullSource,
-    pub html_url: String,
-    pub id: u64,
-    pub issue_url: String,
-    pub locked: bool,
-    pub merge_commit_sha: String,
-    pub merged_at: Option<String>,
-    pub milestone: Option<String>,
-    pub number: u64,
-    pub patch_url: String,
-    pub review_comment_url: String,
-    pub review_comments_url: String,
-    pub state: String,
-    pub statuses_url: String,
-    pub title: String,
-    pub updated_at: String,
-    pub url: String,
-    pub user: User,
-}
-
-
-#[derive(Default, Debug, Deserialize)]
-pub struct PullRequestReviewComment {
-    #[serde(rename="_links")]
-    pub _links: PullRequestReviewCommentLinks,
-    pub body: String,
-    pub commit_id: String,
-    pub created_at: String,
-    pub diff_hunk: String,
-    pub html_url: String,
-    pub id: u64,
-    pub original_commit_id: String,
-    pub original_position: u64,
-    pub path: String,
-    pub position: u64,
-    pub pull_request_url: String,
-    pub updated_at: String,
-    pub url: String,
-    pub user: User,
-}
-
-#[derive(Default, Debug, Deserialize)]
-pub struct Release {
-    pub assets: Vec<String>,
-    pub assets_url: String,
-    pub author: User,
-    pub body: Option<String>,
-    pub created_at: String,
-    pub draft: bool,
-    pub html_url: String,
-    pub id: u64,
-    pub name: Option<String>,
-    pub prerelease: bool,
-    pub published_at: String,
-    pub tag_name: String,
-    pub tarball_url: String,
-    pub target_commitish: String,
-    pub upload_url: String,
-    pub url: String,
-    pub zipball_url: String,
-}
-
-#[derive(Default, Debug, Deserialize)]
-pub struct UserRef {
-  pub name: String,
-  pub email: Option<String>
-}
-
-/// differs from Repository in owner type and some timestamp field types
-#[derive(Default, Debug, Deserialize)]
-pub struct PushRepository {
-    pub archive_url: String,
-    pub assignees_url: String,
-    pub blobs_url: String,
-    pub branches_url: String,
-    pub clone_url: String,
-    pub collaborators_url: String,
-    pub comments_url: String,
-    pub commits_url: String,
-    pub compare_url: String,
-    pub contents_url: String,
-    pub contributors_url: String,
-    pub created_at: u64,
-    pub default_branch: String,
-    pub description: String,
-    pub downloads_url: String,
-    pub events_url: String,
-    pub fork: bool,
-    pub forks_count: u64,
-    pub forks_url: String,
-    pub full_name: String,
-    pub git_commits_url: String,
-    pub git_refs_url: String,
-    pub git_tags_url: String,
-    pub git_url: String,
-    pub has_downloads: bool,
-    pub has_issues: bool,
-    pub has_pages: bool,
-    pub has_wiki: bool,
-    pub homepage: Option<String>,
-    pub hooks_url: String,
-    pub html_url: String,
-    pub id: u64,
-    pub issue_comment_url: String,
-    pub issue_events_url: String,
-    pub issues_url: String,
-    pub keys_url: String,
-    pub labels_url: String,
-    pub language: Option<String>,
-    pub languages_url: String,
-    pub merges_url: String,
-    pub milestones_url: String,
-    pub mirror_url: Option<String>,
-    pub name: String,
-    pub notifications_url: String,
-    pub open_issues: u64,
-    pub open_issues_count: u64,
-    pub owner: UserRef,
-    pub private: bool,
-    pub pulls_url: String,
-    pub pushed_at: u64,
-    pub releases_url: String,
-    pub size: u64,
-    pub ssh_url: String,
-    pub stargazers_count: u64,
-    pub stargazers_url: String,
-    pub statuses_url: String,
-    pub subscribers_url: String,
-    pub subscription_url: String,
-    pub svn_url: String,
-    pub tags_url: String,
-    pub teams_url: String,
-    pub trees_url: String,
-    pub updated_at: String,
-    pub url: String,
-    pub watchers: u64,
-    pub watchers_count: u64,
-}
-
-#[derive(Default, Debug, Deserialize)]
-pub struct Repository {
-    pub archive_url: String,
-    pub assignees_url: String,
-    pub blobs_url: String,
-    pub branches_url: String,
-    pub clone_url: String,
-    pub collaborators_url: String,
-    pub comments_url: String,
-    pub commits_url: String,
-    pub compare_url: String,
-    pub contents_url: String,
-    pub contributors_url: String,
-    pub created_at: String,
-    pub default_branch: String,
-    pub description: String,
-    pub downloads_url: String,
-    pub events_url: String,
-    pub forks: u64,
-    pub forks_count: u64,
-    pub forks_url: String,
-    pub full_name: String,
-    pub git_commits_url: String,
-    pub git_refs_url: String,
-    pub git_tags_url: String,
-    pub git_url: String,
-    pub has_downloads: bool,
-    pub has_issues: bool,
-    pub has_pages: bool,
-    pub has_wiki: bool,
-    pub homepage: Option<String>,
-    pub hooks_url: String,
-    pub html_url: String,
-    pub id: u64,
-    pub issue_comment_url: String,
-    pub issue_events_url: String,
-    pub issues_url: String,
-    pub keys_url: String,
-    pub labels_url: String,
-    pub language: Option<String>,
-    pub languages_url: String,
-    pub merges_url: String,
-    pub milestones_url: String,
-    pub mirror_url: Option<String>,
-    pub name: String,
-    pub notifications_url: String,
-    pub open_issues: u64,
-    pub open_issues_count: u64,
-    pub owner: User,
-    pub private: bool,
-    pub pulls_url: String,
-    pub pushed_at: String,
-    pub releases_url: String,
-    pub size: u64,
-    pub ssh_url: String,
-    pub stargazers_count: u64,
-    pub stargazers_url: String,
-    pub statuses_url: String,
-    pub subscribers_url: String,
-    pub subscription_url: String,
-    pub svn_url: String,
-    pub tags_url: String,
-    pub teams_url: String,
-    pub trees_url: String,
-    pub updated_at: String,
-    pub url: String,
-    pub watchers: u64,
-    pub watchers_count: u64,
-}
-
-#[derive(Default, Debug, Deserialize)]
-pub struct Team {
-    pub id: u64,
-    pub members_url: String,
-    pub name: String,
-    pub permission: String,
-    pub repositories_url: String,
-    pub slug: String,
-    pub url: String,
-}
-
-#[derive(Default, Debug, Deserialize)]
-pub struct GitUser {
-    pub email: String,
-    pub name: String,
-    pub username: Option<String>,
-    pub date: Option<String>
-}
-
-#[derive(Default, Debug, Deserialize)]
-pub struct Config {
-    pub content_type: String,
-    pub insecure_ssl: String,
-    pub secret: String,
-    pub url: String,
-}
-
-#[derive(Default, Debug, Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct Error {
-    pub message: Option<String>,
+  message: String,
 }
 
-#[derive(Default, Debug, Deserialize)]
-pub struct PullSource {
-    pub label: String,
-    #[serde(rename="ref")]
-    pub _ref: String,
-    pub repo: Repository,
-    pub sha: String,
-    pub user: User,
+#[derive(Debug, Deserialize)]
+pub struct FirstPatchedVersion {
+  identifier: String,
 }
 
-#[derive(Default, Debug, Deserialize)]
-pub struct Label {
-    pub color: String,
-    pub name: String,
-    pub url: String,
+#[derive(Debug, Deserialize)]
+pub struct Forkee {
+  id: i64,
+  node_id: String,
+  name: String,
+  full_name: String,
+  owner: User,
+  private: bool,
+  html_url: String,
+  description: String,
+  fork: bool,
+  url: String,
+  forks_url: String,
+  keys_url: String,
+  collaborators_url: String,
+  teams_url: String,
+  hooks_url: String,
+  issue_events_url: String,
+  events_url: String,
+  assignees_url: String,
+  branches_url: String,
+  tags_url: String,
+  blobs_url: String,
+  git_tags_url: String,
+  git_refs_url: String,
+  trees_url: String,
+  statuses_url: String,
+  languages_url: String,
+  stargazers_url: String,
+  contributors_url: String,
+  subscribers_url: String,
+  subscription_url: String,
+  commits_url: String,
+  git_commits_url: String,
+  comments_url: String,
+  issue_comment_url: String,
+  contents_url: String,
+  compare_url: String,
+  merges_url: String,
+  archive_url: String,
+  downloads_url: String,
+  issues_url: String,
+  pulls_url: String,
+  milestones_url: String,
+  notifications_url: String,
+  labels_url: String,
+  releases_url: String,
+  deployments_url: String,
+  created_at: String,
+  updated_at: String,
+  pushed_at: String,
+  git_url: String,
+  ssh_url: String,
+  clone_url: String,
+  svn_url: String,
+  homepage: String,
+  size: i64,
+  stargazers_count: i64,
+  watchers_count: i64,
+  language: String,
+  has_issues: bool,
+  has_projects: bool,
+  has_downloads: bool,
+  has_wiki: bool,
+  has_pages: bool,
+  forks_count: i64,
+  mirror_url: String,
+  archived: bool,
+  open_issues_count: i64,
+  license: String,
+  forks: i64,
+  open_issues: i64,
+  watchers: i64,
+  default_branch: String,
+  public: bool,
 }
 
-#[derive(Default, Debug, Deserialize)]
-pub struct LastResponse {
-    pub code: Option<String>,
-    pub message: Option<String>,
-    pub status: String,
+#[derive(Debug, Deserialize)]
+pub struct Head {
+  label: String,
+  #[serde(rename = "ref")]
+  _ref: String,
+  sha: String,
+  user: User,
+  repo: Repo,
 }
 
-#[derive(Default, Debug, Deserialize)]
-pub struct PullRequestLinks {
-    pub comments: Link,
-    pub commits: Link,
-    pub html: Link,
-    pub issue: Link,
-    pub review_comment: Link,
-    pub review_comments: Link,
-    #[serde(rename="self")]
-    pub _self: Link,
-    pub statuses: Link,
+#[derive(Debug, Deserialize)]
+pub struct HeadCommit {
+  id: String,
+  tree_id: String,
+  message: String,
+  timestamp: String,
+  author: Author,
+  committer: Author,
 }
 
-#[derive(Default, Debug, Deserialize)]
-pub struct PullRequestInnerBase {
-    pub label: String,
-    #[serde(rename="ref")]
-    pub _ref: String,
-    pub repo: Repository,
-    pub sha: String,
-    pub user: User,
+#[derive(Debug, Deserialize)]
+pub struct Identifiers {
+  value: String,
+  #[serde(rename = "type")]
+  _type: String,
 }
 
-#[derive(Default, Debug, Deserialize)]
-pub struct PullRequestInnerHead {
-    pub label: String,
-    #[serde(rename="ref")]
-    pub _ref: String,
-    pub repo: Repository,
-    pub sha: String,
-    pub user: User,
+#[derive(Debug, Deserialize)]
+pub struct Installation {
+  id: i64,
 }
 
-#[derive(Default, Debug, Deserialize)]
-pub struct PullRequestReviewCommentLinks {
-    pub html: Link,
-    pub pull_request: Link,
-    #[serde(rename="self")]
-    pub _self: Link,
+#[derive(Debug, Deserialize)]
+pub struct Installation1 {
+  id: i64,
+  node_id: String,
 }
 
-#[derive(Default, Debug, Deserialize)]
-pub struct User {
-    pub avatar_url: String,
-    pub events_url: String,
-    pub followers_url: String,
-    pub following_url: String,
-    pub gists_url: String,
-    pub gravatar_id: String,
-    pub html_url: String,
-    pub id: u64,
-    pub login: String,
-    pub organizations_url: String,
-    pub received_events_url: String,
-    pub repos_url: String,
-    pub site_admin: bool,
-    pub starred_url: String,
-    pub subscriptions_url: String,
-    #[serde(rename="type")]
-    pub _type: String,
-    pub url: String,
+#[derive(Debug, Deserialize)]
+pub struct Installation3 {
+  id: i64,
+  account: User,
+  repository_selection: String,
+  access_tokens_url: String,
+  repositories_url: String,
+  html_url: String,
+  app_id: i64,
+  target_id: i64,
+  target_type: String,
+  permissions: Permissions,
+  events: Vec<String>,
+  created_at: i64,
+  updated_at: i64,
+  single_file_name: String,
 }
 
-#[derive(Default, Debug, Deserialize)]
+#[derive(Debug, Deserialize)]
+pub struct Issue {
+  url: String,
+  repository_url: String,
+  labels_url: String,
+  comments_url: String,
+  events_url: String,
+  html_url: String,
+  id: i64,
+  node_id: String,
+  number: i64,
+  title: String,
+  user: User,
+  labels: Vec<Labels>,
+  state: String,
+  locked: bool,
+  assignee: User,
+  assignees: Vec<User>,
+  milestone: String,
+  comments: i64,
+  created_at: String,
+  updated_at: String,
+  closed_at: String,
+  author_association: String,
+  body: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Labels {
+  id: i64,
+  node_id: String,
+  url: String,
+  name: String,
+  color: String,
+  default: bool,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct License {
+  key: String,
+  name: String,
+  spdx_id: String,
+  url: String,
+  node_id: String,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct Link {
-  pub href: String,
+  href: String,
 }
 
-#[derive(Default, Debug, Deserialize)]
-pub struct GitRef {
-    pub sha: String,
-    pub url: String,
+#[derive(Debug, Deserialize)]
+pub struct Links {
+  #[serde(rename = "self")]
+  _self: Link,
+  html: Link,
+  issue: Link,
+  comments: Link,
+  review_comments: Link,
+  review_comment: Link,
+  commits: Link,
+  statuses: Link,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Links1 {
+  html: Link,
+  pull_request: Link,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Links2 {
+  #[serde(rename = "self")]
+  _self: Link,
+  html: Link,
+  pull_request: Link,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct MarketplacePurchase1 {
+  account: Account,
+  billing_cycle: String,
+  unit_count: i64,
+  on_free_trial: bool,
+  free_trial_ends_on: String,
+  next_billing_date: String,
+  plan: Plan,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Member {
+  action: String,
+  member: User,
+  changes: Changes,
+  repository: Repo,
+  sender: User,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Membership1 {
+  url: String,
+  state: String,
+  role: String,
+  organization_url: String,
+  user: User,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Milestone1 {
+  url: String,
+  html_url: String,
+  labels_url: String,
+  id: i64,
+  node_id: String,
+  number: i64,
+  title: String,
+  description: String,
+  creator: User,
+  open_issues: i64,
+  closed_issues: i64,
+  state: String,
+  created_at: String,
+  updated_at: String,
+  due_on: String,
+  closed_at: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Organization {
+  login: String,
+  id: i64,
+  node_id: String,
+  url: String,
+  repos_url: String,
+  events_url: String,
+  hooks_url: String,
+  issues_url: String,
+  members_url: String,
+  public_members_url: String,
+  avatar_url: String,
+  description: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Output {
+  title: String,
+  summary: String,
+  text: String,
+  annotations_count: i64,
+  annotations_url: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Owner {
+  name: String,
+  email: String,
+  login: String,
+  id: i64,
+  node_id: String,
+  avatar_url: String,
+  gravatar_id: String,
+  url: String,
+  html_url: String,
+  followers_url: String,
+  following_url: String,
+  gists_url: String,
+  starred_url: String,
+  subscriptions_url: String,
+  organizations_url: String,
+  repos_url: String,
+  events_url: String,
+  received_events_url: String,
+  #[serde(rename = "type")]
+  _type: String,
+  site_admin: bool,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Package {
+  ecosystem: String,
+  name: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Pages {
+  page_name: String,
+  title: String,
+  summary: String,
+  action: String,
+  sha: String,
+  html_url: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Permission {
+  from: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Permissions {
+  metadata: String,
+  contents: String,
+  issues: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Permissions1 {
+  pull: bool,
+  push: bool,
+  admin: bool,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Plan {
+  id: i64,
+  name: String,
+  description: String,
+  monthly_price_in_cents: i64,
+  yearly_price_in_cents: i64,
+  price_model: String,
+  has_free_trial: bool,
+  unit_name: String,
+  bullets: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Project1 {
+  owner_url: String,
+  url: String,
+  html_url: String,
+  columns_url: String,
+  id: i64,
+  node_id: String,
+  name: String,
+  body: String,
+  number: i64,
+  state: String,
+  creator: User,
+  created_at: String,
+  updated_at: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ProjectCard1 {
+  url: String,
+  project_url: String,
+  column_url: String,
+  column_id: i64,
+  id: i64,
+  node_id: String,
+  note: String,
+  creator: User,
+  created_at: String,
+  updated_at: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ProjectColumn1 {
+  url: String,
+  project_url: String,
+  cards_url: String,
+  id: i64,
+  node_id: String,
+  name: String,
+  created_at: String,
+  updated_at: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct PullRequest1 {
+  url: String,
+  id: i64,
+  node_id: String,
+  html_url: String,
+  diff_url: String,
+  patch_url: String,
+  issue_url: String,
+  number: i64,
+  state: String,
+  locked: bool,
+  title: String,
+  user: User,
+  body: String,
+  created_at: String,
+  updated_at: String,
+  closed_at: String,
+  merged_at: String,
+  merge_commit_sha: String,
+  assignee: User,
+  assignees: Vec<User>,
+  requested_reviewers: Vec<User>,
+  labels: Vec<Labels>,
+  milestone: String,
+  commits_url: String,
+  review_comments_url: String,
+  review_comment_url: String,
+  comments_url: String,
+  statuses_url: String,
+  head: Head,
+  base: Head,
+  _links: Links,
+  author_association: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct PullRequests {
+  url: String,
+  id: i64,
+  node_id: String,
+  html_url: String,
+  diff_url: String,
+  patch_url: String,
+  issue_url: String,
+  number: i64,
+  state: String,
+  locked: bool,
+  title: String,
+  user: User,
+  body: String,
+  created_at: String,
+  updated_at: String,
+  closed_at: String,
+  merged_at: String,
+  merge_commit_sha: String,
+  assignee: User,
+  assignees: Vec<User>,
+  requested_reviewers: Vec<User>,
+  labels: Vec<Labels>,
+  milestone: String,
+  commits_url: String,
+  review_comments_url: String,
+  review_comment_url: String,
+  comments_url: String,
+  statuses_url: String,
+  head: Head,
+  base: Head,
+  _links: Links,
+  author_association: String,
+  merged: bool,
+  mergeable: bool,
+  rebaseable: bool,
+  mergeable_state: String,
+  merged_by: String,
+  comments: i64,
+  review_comments: i64,
+  maintainer_can_modify: bool,
+  commits: i64,
+  additions: i64,
+  deletions: i64,
+  changed_files: i64,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct References {
+  url: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Release1 {
+  url: String,
+  assets_url: String,
+  upload_url: String,
+  html_url: String,
+  id: i64,
+  node_id: String,
+  tag_name: String,
+  target_commitish: String,
+  name: String,
+  draft: bool,
+  author: User,
+  prerelease: bool,
+  created_at: String,
+  published_at: String,
+  tarball_url: String,
+  zipball_url: String,
+  body: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Repo {
+  id: i64,
+  node_id: String,
+  name: String,
+  full_name: String,
+  private: bool,
+  owner: User,
+  html_url: String,
+  description: String,
+  fork: bool,
+  url: String,
+  forks_url: String,
+  keys_url: String,
+  collaborators_url: String,
+  teams_url: String,
+  hooks_url: String,
+  issue_events_url: String,
+  events_url: String,
+  assignees_url: String,
+  branches_url: String,
+  tags_url: String,
+  blobs_url: String,
+  git_tags_url: String,
+  git_refs_url: String,
+  trees_url: String,
+  statuses_url: String,
+  languages_url: String,
+  stargazers_url: String,
+  contributors_url: String,
+  subscribers_url: String,
+  subscription_url: String,
+  commits_url: String,
+  git_commits_url: String,
+  comments_url: String,
+  issue_comment_url: String,
+  contents_url: String,
+  compare_url: String,
+  merges_url: String,
+  archive_url: String,
+  downloads_url: String,
+  issues_url: String,
+  pulls_url: String,
+  milestones_url: String,
+  notifications_url: String,
+  labels_url: String,
+  releases_url: String,
+  deployments_url: String,
+  created_at: String,
+  updated_at: String,
+  pushed_at: String,
+  git_url: String,
+  ssh_url: String,
+  clone_url: String,
+  svn_url: String,
+  homepage: String,
+  size: i64,
+  stargazers_count: i64,
+  watchers_count: i64,
+  language: String,
+  has_issues: bool,
+  has_projects: bool,
+  has_downloads: bool,
+  has_wiki: bool,
+  has_pages: bool,
+  forks_count: i64,
+  mirror_url: String,
+  archived: bool,
+  open_issues_count: i64,
+  license: String,
+  forks: i64,
+  open_issues: i64,
+  watchers: i64,
+  default_branch: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Repositories {
+  id: i64,
+  name: String,
+  full_name: String,
+  private: bool,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Repository {
+  id: i64,
+  node_id: String,
+  name: String,
+  full_name: String,
+  owner: Owner,
+  private: bool,
+  html_url: String,
+  description: String,
+  fork: bool,
+  url: String,
+  forks_url: String,
+  keys_url: String,
+  collaborators_url: String,
+  teams_url: String,
+  hooks_url: String,
+  issue_events_url: String,
+  events_url: String,
+  assignees_url: String,
+  branches_url: String,
+  tags_url: String,
+  blobs_url: String,
+  git_tags_url: String,
+  git_refs_url: String,
+  trees_url: String,
+  statuses_url: String,
+  languages_url: String,
+  stargazers_url: String,
+  contributors_url: String,
+  subscribers_url: String,
+  subscription_url: String,
+  commits_url: String,
+  git_commits_url: String,
+  comments_url: String,
+  issue_comment_url: String,
+  contents_url: String,
+  compare_url: String,
+  merges_url: String,
+  archive_url: String,
+  downloads_url: String,
+  issues_url: String,
+  pulls_url: String,
+  milestones_url: String,
+  notifications_url: String,
+  labels_url: String,
+  releases_url: String,
+  deployments_url: String,
+  created_at: i64,
+  updated_at: String,
+  pushed_at: i64,
+  git_url: String,
+  ssh_url: String,
+  clone_url: String,
+  svn_url: String,
+  homepage: String,
+  size: i64,
+  stargazers_count: i64,
+  watchers_count: i64,
+  language: String,
+  has_issues: bool,
+  has_projects: bool,
+  has_downloads: bool,
+  has_wiki: bool,
+  has_pages: bool,
+  forks_count: i64,
+  mirror_url: String,
+  archived: bool,
+  open_issues_count: i64,
+  license: String,
+  forks: i64,
+  open_issues: i64,
+  watchers: i64,
+  default_branch: String,
+  stargazers: i64,
+  master_branch: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Repository2 {
+  id: i64,
+  node_id: String,
+  name: String,
+  full_name: String,
+  owner: User,
+  private: bool,
+  html_url: String,
+  description: String,
+  fork: bool,
+  url: String,
+  forks_url: String,
+  keys_url: String,
+  collaborators_url: String,
+  teams_url: String,
+  hooks_url: String,
+  issue_events_url: String,
+  events_url: String,
+  assignees_url: String,
+  branches_url: String,
+  tags_url: String,
+  blobs_url: String,
+  git_tags_url: String,
+  git_refs_url: String,
+  trees_url: String,
+  statuses_url: String,
+  languages_url: String,
+  stargazers_url: String,
+  contributors_url: String,
+  subscribers_url: String,
+  subscription_url: String,
+  commits_url: String,
+  git_commits_url: String,
+  comments_url: String,
+  issue_comment_url: String,
+  contents_url: String,
+  compare_url: String,
+  merges_url: String,
+  archive_url: String,
+  downloads_url: String,
+  issues_url: String,
+  pulls_url: String,
+  milestones_url: String,
+  notifications_url: String,
+  labels_url: String,
+  releases_url: String,
+  deployments_url: String,
+  created_at: String,
+  updated_at: String,
+  pushed_at: String,
+  git_url: String,
+  ssh_url: String,
+  clone_url: String,
+  svn_url: String,
+  homepage: String,
+  size: i64,
+  stargazers_count: i64,
+  watchers_count: i64,
+  language: String,
+  has_issues: bool,
+  has_projects: bool,
+  has_downloads: bool,
+  has_wiki: bool,
+  has_pages: bool,
+  forks_count: i64,
+  mirror_url: String,
+  archived: bool,
+  open_issues_count: i64,
+  license: String,
+  forks: i64,
+  open_issues: i64,
+  watchers: i64,
+  default_branch: String,
+  permissions: Permissions1,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Review {
+  id: i64,
+  node_id: String,
+  user: User,
+  body: String,
+  commit_id: String,
+  submitted_at: String,
+  state: String,
+  html_url: String,
+  pull_request_url: String,
+  author_association: String,
+  _links: Links1,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct SecurityAdvisory1 {
+  ghsa_id: String,
+  summary: String,
+  description: String,
+  severity: String,
+  identifiers: Vec<Identifiers>,
+  references: Vec<References>,
+  published_at: String,
+  updated_at: String,
+  withdrawn_at: String,
+  vulnerabilities: Vec<Vulnerabilities>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Sender {
+  login: String,
+  id: i64,
+  avatar_url: String,
+  gravatar_id: String,
+  url: String,
+  html_url: String,
+  followers_url: String,
+  following_url: String,
+  gists_url: String,
+  starred_url: String,
+  subscriptions_url: String,
+  organizations_url: String,
+  repos_url: String,
+  events_url: String,
+  received_events_url: String,
+  #[serde(rename = "type")]
+  _type: String,
+  site_admin: bool,
+  email: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Team {
+  name: String,
+  id: i64,
+  node_id: String,
+  slug: String,
+  description: String,
+  privacy: String,
+  url: String,
+  members_url: String,
+  repositories_url: String,
+  permission: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Tree {
+  sha: String,
+  url: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct User {
+  login: String,
+  id: i64,
+  node_id: String,
+  avatar_url: String,
+  gravatar_id: String,
+  url: String,
+  html_url: String,
+  followers_url: String,
+  following_url: String,
+  gists_url: String,
+  starred_url: String,
+  subscriptions_url: String,
+  organizations_url: String,
+  repos_url: String,
+  events_url: String,
+  received_events_url: String,
+  #[serde(rename = "type")]
+  _type: String,
+  site_admin: bool,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Verification {
+  verified: bool,
+  reason: String,
+  signature: String,
+  payload: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Vulnerabilities {
+  package: Package,
+  severity: String,
+  vulnerable_version_range: String,
+  first_patched_version: FirstPatchedVersion,
 }
