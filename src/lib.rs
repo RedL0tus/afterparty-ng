@@ -60,6 +60,8 @@ impl<'a> Delivery<'a> {
                 })
             }
             Err(e) => {
+                // println!("{}", e);
+                // println!("failed to parse json {:?}\n{:#?}", e, patched);
                 error!("failed to parse json {:?}\n{:#?}", e, patched);
                 None
             }
@@ -131,6 +133,7 @@ impl Handler for Hub {
                                         payload.as_ref(),
                                         signature.map(|s| s.as_ref())) {
                         Some(delivery) => {
+                            // println!("{:?}", delivery);
                             for hook in hooks {
                                 hook.handle(&delivery);
                             }
