@@ -8,7 +8,7 @@ keywords = ["github", "ci", "webhook", "hyper"]
 license = "MIT"
 name = "afterparty-ng"
 repository = "https://github.com/softprops/afterparty"
-version = "0.4.1"
+version = "0.4.2"
 
 [build-dependencies]
 glob = "0.2.11"
