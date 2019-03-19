@@ -154,6 +154,13 @@ pub enum Event {
         repository: Repo,
         sender: User,
     },
+    Ping {
+        hook: Hook,
+        hook_id: u64,
+        repository: Repository,
+        sender: User,
+        zen: String,
+    },
     Project {
         action: String,
         project: Project1,
@@ -626,6 +633,14 @@ pub struct Forkee {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct Config {
+    pub content_type: String,
+    pub insecure_ssl: String,
+    pub secret: String,
+    pub url: String,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct Head {
   pub label: String,
   #[serde(rename = "ref")]
@@ -643,6 +658,22 @@ pub struct HeadCommit {
   pub timestamp: String,
   pub author: Author,
   pub committer: Author,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Hook {
+    pub active: bool,
+    pub config: Config,
+    pub created_at: String,
+    pub events: Vec<String>,
+    pub id: u64,
+    pub last_response: LastResponse,
+    pub name: String,
+    pub ping_url: String,
+    pub test_url: String,
+    pub _type: String,
+    pub updated_at: String,
+    pub url: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -716,6 +747,13 @@ pub struct Labels {
   pub name: String,
   pub color: String,
   pub default: bool,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct LastResponse {
+    pub code: Option<String>,
+    pub message: Option<String>,
+    pub status: String,
 }
 
 #[derive(Debug, Deserialize)]

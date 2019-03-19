@@ -84,7 +84,7 @@ mod tests {
         let pbytes = payload.as_bytes();
         let mut mac = Hmac::new(Sha1::new(), &sbytes);
         mac.input(&pbytes);
-        let signature = mac.result().code().to_hex();
+        let signature = mac.result().code().to_hash();
         assert!(authenticated.authenticate(payload, format!("sha1={}", signature).as_ref()))
     }
 }
