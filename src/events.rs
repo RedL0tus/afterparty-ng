@@ -4,7 +4,6 @@
 extern crate case;
 extern crate serde;
 extern crate serde_json;
-extern crate env_logger;
 
 use case::CaseExt;
 use std::collections::BTreeMap;
