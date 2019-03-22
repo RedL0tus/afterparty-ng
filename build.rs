@@ -1,6 +1,6 @@
+extern crate glob;
 extern crate serde_codegen;
 extern crate serde_json;
-extern crate glob;
 
 use std::env;
 use std::fs;

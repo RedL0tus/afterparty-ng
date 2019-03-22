@@ -1,9 +1,9 @@
+use super::Delivery;
 use crypto::hmac::Hmac;
 use crypto::mac::Mac;
 use crypto::mac::MacResult;
 use crypto::sha1::Sha1;
 use hex::FromHex;
-use super::Delivery;
 
 /// Handles webhook deliveries
 pub trait Hook: Send + Sync {
@@ -19,7 +19,8 @@ pub struct AuthenticateHook<H: Hook + 'static> {
 
 impl<H: Hook + 'static> AuthenticateHook<H> {
     pub fn new<S>(secret: S, hook: H) -> AuthenticateHook<H>
-        where S: Into<String>
+    where
+        S: Into<String>,
     {
         AuthenticateHook {
             secret: secret.into(),
@@ -57,8 +58,9 @@ impl<H: Hook + 'static> Hook for AuthenticateHook<H> {
 }
 
 impl<F> Hook for F
-    where F: Fn(&Delivery),
-          F: Sync + Send
+where
+    F: Fn(&Delivery),
+    F: Sync + Send,
 {
     fn handle(&self, delivery: &Delivery) {
         self(delivery)
@@ -67,17 +69,16 @@ impl<F> Hook for F
 
 #[cfg(test)]
 mod tests {
+    use super::super::Delivery;
+    use super::*;
     use crypto::hmac::Hmac;
     use crypto::mac::Mac;
     use crypto::sha1::Sha1;
     use hex::ToHex;
-    use super::*;
-    use super::super::Delivery;
 
     #[test]
     fn authenticate_signatures() {
-        let authenticated = AuthenticateHook::new("secret", |_: &Delivery| {
-        });
+        let authenticated = AuthenticateHook::new("secret", |_: &Delivery| {});
         let payload = r#"{"zen": "Approachable is better than simple."}"#;
         let secret = "secret";
         let sbytes = secret.as_bytes();
