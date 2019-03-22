@@ -28,6 +28,8 @@ pub fn patch_payload_json(event: &str, payload: &str) -> String {
 // provide a sensible default for our serde_json::Value type wrapper
 impl Default for Value {
     fn default() -> Value {
-        Value { json: serde_json::Value::Object(BTreeMap::new()) }
+        Value {
+            json: serde_json::Value::Object(BTreeMap::new()),
+        }
     }
 }
