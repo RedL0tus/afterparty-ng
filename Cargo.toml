@@ -1,5 +1,5 @@
 [package]
-authors = ["Kenan Sulayman <kenan@sly.mn>", "softprops <d.tangren@gmail.com>"]
+authors = ["Kenan Sulayman <kenan@sly.mn>", "softprops <d.tangren@gmail.com>", "Kay Lin <i@v2bv.net>"]
 build = "build.rs"
 description = "A github webhook server"
 documentation = "http://softprops.github.io/afterparty"
