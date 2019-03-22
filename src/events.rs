@@ -10,7 +10,7 @@ use std::collections::BTreeMap;
 
 // generated Event enum goes here
 
-/// Enumeration of availble Github events
+// Enumeration of availble Github events
 include!(concat!(env!("OUT_DIR"), "/events.rs"));
 
 /// to support enum deserialization, we need to
