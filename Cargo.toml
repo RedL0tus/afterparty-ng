@@ -11,18 +11,18 @@ repository = "https://github.com/softprops/afterparty"
 version = "0.4.2"
 
 [build-dependencies]
-glob = "0.2.11"
-serde_codegen = "0.8"
-serde_json = "0.8"
+glob = "0.3"
+serde_codegen = "0.9"
+serde_json = "0.9"
 
 [dependencies]
-case = "1.0.0"
-hex = "0.3.2"
+case = "1.0"
+hex = "0.3"
 hyper = "0.10"
-log = "0.4.6"
-rust-crypto = "0.2.36"
-serde = "0.8"
-serde_json = "0.8"
+log = "0.4"
+rust-crypto = "0.2"
+serde = "0.9"
+serde_json = "0.9"
 
 [dev-dependencies]
 env_logger = "0.6"
