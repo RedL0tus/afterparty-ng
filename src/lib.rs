@@ -5,8 +5,8 @@ extern crate log;
 #[macro_use]
 extern crate hyper;
 extern crate case;
-extern crate crypto;
 extern crate hex;
+extern crate ring;
 extern crate serde;
 extern crate serde_json;
 
