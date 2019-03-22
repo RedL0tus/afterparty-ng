@@ -1,9 +1,7 @@
 use super::Delivery;
-use crypto::hmac::Hmac;
-use crypto::mac::Mac;
-use crypto::mac::MacResult;
-use crypto::sha1::Sha1;
 use hex::FromHex;
+use ring::digest;
+use ring::hmac;
 
 /// Handles webhook deliveries
 pub trait Hook: Send + Sync {
@@ -34,11 +32,13 @@ impl<H: Hook + 'static> AuthenticateHook<H> {
         match Vec::from_hex(sans_prefix) {
             Ok(sigbytes) => {
                 let sbytes = self.secret.as_bytes();
-                let mut mac = Hmac::new(Sha1::new(), &sbytes);
                 let pbytes = payload.as_bytes();
-                mac.input(&pbytes);
-                // constant time comparison
-                mac.result() == MacResult::new(&sigbytes)
+                let key = hmac::SigningKey::new(&digest::SHA1, &sbytes);
+                if let Ok(_) = hmac::verify_with_own_key(&key, &pbytes, &sigbytes) {
+                    true
+                } else {
+                    false
+                }
             }
             Err(_) => false,
         }
@@ -71,10 +71,9 @@ where
 mod tests {
     use super::super::Delivery;
     use super::*;
-    use crypto::hmac::Hmac;
-    use crypto::mac::Mac;
-    use crypto::sha1::Sha1;
     use hex::ToHex;
+    use ring::digest;
+    use ring::hmac;
 
     #[test]
     fn authenticate_signatures() {
@@ -83,10 +82,12 @@ mod tests {
         let secret = "secret";
         let sbytes = secret.as_bytes();
         let pbytes = payload.as_bytes();
-        let mut mac = Hmac::new(Sha1::new(), &sbytes);
-        mac.input(&pbytes);
+        let key = hmac::SigningKey::new(&digest::SHA1, &sbytes);
         let mut signature = String::new();
-        mac.result().code().write_hex(&mut signature).unwrap();
+        hmac::sign(&key, &pbytes)
+            .as_ref()
+            .write_hex(&mut signature)
+            .unwrap();
         assert!(authenticated.authenticate(payload, format!("sha1={}", signature).as_ref()))
     }
 }

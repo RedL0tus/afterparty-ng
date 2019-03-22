@@ -20,7 +20,7 @@ case = "1.0"
 hex = "0.3"
 hyper = "0.10"
 log = "0.4"
-rust-crypto = "0.2"
+ring = "0.14"
 serde = "0.9"
 serde_json = "0.9"
 
