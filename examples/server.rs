@@ -1,22 +1,22 @@
 #[macro_use]
 extern crate log;
 extern crate env_logger;
-extern crate afterparty;
+extern crate afterparty_ng;
 extern crate hyper;
 
-use afterparty::{Delivery, Hub};
+use afterparty_ng::{Delivery, Hub};
 
 use hyper::Server;
 
 pub fn main() {
-    env_logger::init().unwrap();
+    env_logger::init();
     let addr = format!("0.0.0.0:{}", 4567);
     let mut hub = Hub::new();
     hub.handle("pull_request", |delivery: &Delivery| {
-        println!("rec delivery {:#?}", delivery);
+        info!("rec delivery {:#?}", delivery);
         /*match delivery.payload {
             Event::PullRequest { ref action, ref sender, .. } => {
-                println!("sender {} action {}", sender.login, action)
+                info!("sender {} action {}", sender.login, action)
             }
             _ => (),
         }*/
@@ -24,6 +24,6 @@ pub fn main() {
     let srvc = Server::http(&addr[..])
                    .unwrap()
                    .handle(hub);
-    println!("listening on {}", addr);
+    info!("listening on {}", addr);
     srvc.unwrap();
 }

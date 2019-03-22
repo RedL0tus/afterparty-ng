@@ -19,18 +19,18 @@ use hyper::server::{Handler, Request, Response};
 use std::collections::HashMap;
 use std::io::Read;
 
-/// signature for request
-/// see [this document](https://developer.github.com/webhooks/securing/) for more information
+// signature for request
+// see [this document](https://developer.github.com/webhooks/securing/) for more information
 header! {(XHubSignature, "X-Hub-Signature") => [String]}
 
-/// name of Github event
-/// see [this document](https://developer.github.com/webhooks/#events) for available types
+// name of Github event
+// see [this document](https://developer.github.com/webhooks/#events) for available types
 header! {(XGithubEvent, "X-Github-Event") => [String]}
 
-/// unique id for each delivery
+// unique id for each delivery
 header! {(XGithubDelivery, "X-Github-Delivery") => [String]}
 
-/// A delivery encodes all information about web hook request
+// A delivery encodes all information about web hook request
 #[derive(Debug)]
 pub struct Delivery<'a> {
     pub id: &'a str,
