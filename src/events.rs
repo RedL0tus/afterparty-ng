@@ -6,7 +6,6 @@ extern crate serde;
 extern crate serde_json;
 
 use case::CaseExt;
-use std::collections::BTreeMap;
 
 // generated Event enum goes here
 
@@ -29,7 +28,7 @@ pub fn patch_payload_json(event: &str, payload: &str) -> String {
 impl Default for Value {
     fn default() -> Value {
         Value {
-            json: serde_json::Value::Object(BTreeMap::new()),
+            json: serde_json::Value::Object(serde_json::Map::new()),
         }
     }
 }
