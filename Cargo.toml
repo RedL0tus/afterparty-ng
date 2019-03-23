@@ -9,6 +9,7 @@ license = "MIT"
 name = "afterparty-ng"
 repository = "https://github.com/softprops/afterparty"
 version = "0.4.2"
+edition = "2018"
 
 [build-dependencies]
 glob = "0.3"
