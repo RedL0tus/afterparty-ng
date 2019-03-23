@@ -9,7 +9,7 @@ use case::CaseExt;
 
 // generated Event enum goes here
 
-// Enumeration of availble Github events
+// Enumeration of available Github events
 include!(concat!(env!("OUT_DIR"), "/events.rs"));
 
 /// to support enum deserialization, we need to
