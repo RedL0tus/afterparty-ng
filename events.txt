@@ -21,6 +21,7 @@ milestone
 org_block
 organization
 page_build
+ping
 project
 project_card
 project_column
