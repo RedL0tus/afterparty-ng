@@ -34,11 +34,7 @@ impl<H: Hook + 'static> AuthenticateHook<H> {
                 let sbytes = self.secret.as_bytes();
                 let pbytes = payload.as_bytes();
                 let key = hmac::SigningKey::new(&digest::SHA1, &sbytes);
-                if let Ok(_) = hmac::verify_with_own_key(&key, &pbytes, &sigbytes) {
-                    true
-                } else {
-                    false
-                }
+                hmac::verify_with_own_key(&key, &pbytes, &sigbytes).is_ok()
             }
             Err(_) => false,
         }
