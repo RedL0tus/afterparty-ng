@@ -1,14 +1,12 @@
-#![feature(clone_closures)]
-
 //! Afterparty is a github webhook handler library for building custom integrations
 
 #[macro_use]
 extern crate log;
-extern crate hyper;
 extern crate case;
-extern crate hex;
-extern crate ring;
 extern crate futures;
+extern crate hex;
+extern crate hyper;
+extern crate ring;
 
 extern crate serde;
 extern crate serde_json;
@@ -19,12 +17,27 @@ mod hook;
 pub use events::Event;
 pub use hook::{AuthenticateHook, Hook};
 
-use futures::{future, Future};
 use futures::stream::Stream;
-use hyper::service::{Service, NewService};
-use hyper::{Body, Error, Response, StatusCode, Request};
+use futures::{future, Future};
+use hyper::service::{NewService, Service};
+use hyper::{Body, Error, Request, Response, StatusCode};
 
 use std::collections::HashMap;
+
+/// Get value of the the header in hyper 0.12
+macro_rules! get_header_value {
+    ($headers:expr, $key:expr) => {
+        if let Some(value) = $headers.get($key) {
+            if let Ok(inner) = value.to_str() {
+                Some(inner.clone())
+            } else {
+                None
+            }
+        } else {
+            None
+        }
+    };
+}
 
 // A delivery encodes all information about web hook request
 #[derive(Debug)]
@@ -69,6 +82,10 @@ pub struct Hub {
     hooks: HashMap<String, Vec<Box<Hook>>>,
 }
 
+pub struct Worker {
+    hooks: HashMap<String, Vec<Box<Hook>>>,
+}
+
 impl Hub {
     /// construct a new hub instance
     pub fn new() -> Hub {
@@ -82,7 +99,7 @@ impl Hub {
     /// request signature based on the provided secret
     pub fn handle_authenticated<H, S>(&mut self, event: &str, secret: S, hook: H)
     where
-        H: Hook + 'static,
+        H: Hook + Clone + 'static,
         S: Into<String>,
     {
         self.handle(event, AuthenticateHook::new(secret, hook))
@@ -105,20 +122,9 @@ impl Hub {
     }
 }
 
-pub struct Worker<'a> {
-    hooks: &'a HashMap<String, Vec<Box<Hook>>>
-}
-
-impl<'a> Worker<'a> {
-    fn from(hooks: &HashMap<String, Vec<Box<Hook>>>) -> Worker {
-        Worker {
-            hooks
-        }
-    }
-
+impl Worker {
     /// get all interested hooks for a given event
-    fn hooks(&self, event: &str) -> Option<Vec<&Box<Hook>>> {
-        debug!("Finding matches for '{}'", event);
+    pub fn hooks(&self, event: &str) -> Option<Vec<&Box<Hook>>> {
         let explicit = self.hooks.get(event);
         let implicit = self.hooks.get("*");
         let combined = match (explicit, implicit) {
@@ -132,19 +138,28 @@ impl<'a> Worker<'a> {
         combined
     }
 
-    fn response(scode: StatusCode, resbody: &'static str) -> Box<Future<Item = Response<Body>, Error = Error> + Send> {
-        Box::new(
-            future::ok(
-                Response::builder()
-                    .status(scode)
-                    .body(resbody.into())
-                    .unwrap()
-            )
-        )
+    fn response(
+        scode: StatusCode,
+        resbody: &'static str,
+    ) -> Box<Future<Item = Response<Body>, Error = Error> + Send> {
+        Box::new(future::ok(
+            Response::builder()
+                .status(scode)
+                .body(resbody.into())
+                .unwrap(),
+        ))
     }
 }
 
-impl<'a> Service for Worker<'a> {
+impl From<&Hub> for Worker {
+    fn from(hub: &Hub) -> Self {
+        Self {
+            hooks: hub.hooks.clone(),
+        }
+    }
+}
+
+impl Service for Worker {
     type ReqBody = Body;
     type ResBody = Body;
     type Error = Error;
@@ -152,72 +167,63 @@ impl<'a> Service for Worker<'a> {
 
     fn call(&mut self, req: Request<Self::ReqBody>) -> Self::Future {
         let headers = req.headers().clone();
+
         // Name of Github event and unique ID for each delivery.
         // See [this document](https://developer.github.com/webhooks/#events) for available types
-        let (event_str, delivery_str) = if let (Some(event), Some(delivery)) = (
-            headers.get("X-GitHub-Event"), headers.get("X-Github-Delivery")) {
-            if let (Ok(event_str), Ok(delivery_str)) = (event.to_str(), delivery.to_str()) {
-                (event_str, delivery_str)
-            } else {
-                error!("Invalid headers");
-                return Worker::response(StatusCode::BAD_REQUEST, "Invalid headers")
-            }
-        } else {
-            error!("Invalid request");
-            return Worker::response(StatusCode::BAD_REQUEST, "Invalid Response")
-        };
+        let event = get_header_value!(&headers, "X-Github-Event");
+        let delivery = get_header_value!(&headers, "X-Github-Delivery");
+        if event.is_none() || delivery.is_none() {
+            return Worker::response(StatusCode::ACCEPTED, "Invalid request");
+        }
+        let event_str = event.unwrap();
+        let delivery_str = delivery.unwrap();
+
+        info!("Received '{}' event with ID {}", &event_str, &delivery_str);
+
         // signature for request
         // see [this document](https://developer.github.com/webhooks/securing/) for more information
-        let signature = if let Some(value) = headers.get("X-Hub-Signature") {
-            value.to_str().ok()
-        } else {
-            None
-        };
-        info!("Received '{}' event with ID {}", &event_str, &delivery_str);
-        if let Some(hooks) = self.hooks(&event_str) {
-            let body = if let Ok(chunk) = req.into_body().concat2().wait() {
-                chunk
-            } else {
-                error!("Failed to retrieve request body");
-                return Worker::response(StatusCode::BAD_REQUEST, "Failed to retrieve request body")
-            };
-            if let Ok(payload) = String::from_utf8(body.to_vec()) {
-                if let Some(delivery) = Delivery::new(&delivery_str,
-                                                      &event_str,
-                                                      &payload.as_str(),
-                                                      signature) {
-                    for hook in hooks {
-                        hook.handle(&delivery);
-                    }
-                    Worker::response(StatusCode::ACCEPTED, "OK")
-                } else {
-                    error!(
-                        "Failed to parse event {:?} for delivery {:?}",
-                        &event_str, &delivery_str
-                    );
-                    Worker::response(StatusCode::BAD_REQUEST, "Failed to parse event")
-                }
-            } else {
-                error!("Failed to parse request body");
-                Worker::response(StatusCode::BAD_REQUEST, "Failed to parse request body")
-            }
-        } else {
-            error!("No proper hook found");
-            Worker::response(StatusCode::INTERNAL_SERVER_ERROR, "Server not configured")
+        let signature = get_header_value!(&headers, "X-Hub-Signature");
+        let hooks = self.hooks(&event_str);
+        if hooks.is_none() {
+            error!("No matched hook found");
+            return Worker::response(StatusCode::ACCEPTED, "No matched hook found");
         }
+        let hooks = hooks.unwrap();
+        debug!("{} hook(s) found", hooks.len());
+        info!("Wait ");
+        let payload = if let Ok(payload_string) = req
+            .into_body()
+            .concat2()
+            .map(|chunk| String::from_utf8_lossy(&chunk.to_vec()).to_string())
+            .wait()
+        {
+            payload_string
+        } else {
+            error!("Unable to receive payload body");
+            return Worker::response(StatusCode::ACCEPTED, "Invalid request");
+        };
+        let payload_str = payload.as_str();
+        debug!("Request body: {}", &payload_str);
+        if let Some(delivery) = Delivery::new(&delivery_str, &event_str, payload_str, signature) {
+            for hook in hooks {
+                hook.handle(&delivery);
+            }
+        }
+        debug!("Finished");
+        return Worker::response(StatusCode::OK, "OK");
     }
 }
 
-impl<'a> NewService for Hub {
+impl NewService for Hub {
     type ReqBody = Body;
     type ResBody = Body;
     type Error = Error;
-    type Service = Worker<'a>;
+    type Service = Worker;
     type Future = Box<Future<Item = Self::Service, Error = Self::InitError> + Send>;
     type InitError = Error;
 
     fn new_service(&self) -> Self::Future {
-        Box::new(future::ok(Worker::from(&self.hooks)))
+        Box::new(future::ok(Worker::from(self)))
     }
 }
 
@@ -233,9 +239,6 @@ mod tests {
         // Hub::handle(&mut hub, "*", |_: &Delivery| {});
         hub.handle("push", |_: &Delivery| {});
         hub.handle("*", |_: &Delivery| {});
-        assert_eq!(
-            Some(2),
-            hub.len()
-        )
+        assert_eq!(2, hub.len())
     }
 }

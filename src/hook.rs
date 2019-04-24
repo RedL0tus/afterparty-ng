@@ -4,18 +4,44 @@ use ring::digest;
 use ring::hmac;
 
 /// Handles webhook deliveries
-pub trait Hook: Send + Sync {
+pub trait Hook: HookClone + Send + Sync {
     /// Implementations are expected to deliveries here
     fn handle(&self, delivery: &Delivery);
 }
 
+/// To let `Clone` trait work for trait object, an extra trait like this is necessary.
+/// Inspired by https://stackoverflow.com/a/30353928
+pub trait HookClone {
+    fn clone_box(&self) -> Box<Hook>;
+}
+
 /// A delivery authenticator for hooks
+#[derive(Clone)]
 pub struct AuthenticateHook<H: Hook + 'static> {
     secret: String,
     hook: H,
 }
 
-impl<H: Hook + 'static> AuthenticateHook<H> {
+/// To make `Hook` trait object cloneable
+impl<H> HookClone for H
+where
+    H: Hook + Clone + 'static,
+{
+    /// Create a cloned boxed `HookFunc` object.
+    fn clone_box(&self) -> Box<Hook> {
+        Box::new(self.clone())
+    }
+}
+
+/// To make `Hook` trait object cloneable
+impl Clone for Box<Hook> {
+    /// Use `clone_box()` to clone it self.
+    fn clone(&self) -> Box<Hook> {
+        self.clone_box()
+    }
+}
+
+impl<H: Clone + Hook + 'static> AuthenticateHook<H> {
     pub fn new<S>(secret: S, hook: H) -> AuthenticateHook<H>
     where
         S: Into<String>,
@@ -41,7 +67,7 @@ impl<H: Hook + 'static> AuthenticateHook<H> {
     }
 }
 
-impl<H: Hook + 'static> Hook for AuthenticateHook<H> {
+impl<H: Clone + Hook + 'static> Hook for AuthenticateHook<H> {
     fn handle(&self, delivery: &Delivery) {
         if let Some(sig) = delivery.signature {
             if self.authenticate(delivery.unparsed_payload, sig) {
@@ -57,6 +83,7 @@ impl<F> Hook for F
 where
     F: Fn(&Delivery),
     F: Sync + Send,
+    F: Clone + 'static,
 {
     fn handle(&self, delivery: &Delivery) {
         self(delivery)
